@@ -1,0 +1,223 @@
+products:
+
+    # models 
+    cultivated_model: &cultivated_model "models/cultivated_seminat_3yearscomposite.sav"
+    species5_model: &species5_model "models/species5_3yearscomposite.sav"
+
+    # ard sentinel-1 & -2
+    s2_ard:
+        recipe: 
+            &s2_ard
+            input:
+                product: sen2_l2a_gcp
+            transform: le_plugins.s2_ard.s2_ard
+            
+    s1_ard_vh_asc:
+        recipe:
+            &s1_ard_vh_asc
+            input:
+                product: sen1_rtc_pyroSNAP
+                measurements: [VH]
+                pass_direction: ASCENDING
+            transform: le_plugins.s1_ard.s1_ard
+    
+    s1_ard_vh_dsc:
+        recipe:
+            &s1_ard_vh_dsc
+            input:
+                product: sen1_rtc_pyroSNAP
+                measurements: [VH]
+                pass_direction: DESCENDING
+            transform: le_plugins.s1_ard.s1_ard
+   
+    # artificial ED
+    s1_asc_artiwoody:
+        recipe:
+            &s1_asc_artiwoody
+            input: *s1_ard_vh_asc
+            transform: le_plugins.artific_urb_cat.s1_artiwoody
+    
+    s1_dsc_artiwoody:
+        recipe:
+            &s1_dsc_artiwoody
+            input: *s1_ard_vh_dsc
+            transform: le_plugins.artific_urb_cat.s1_artiwoody
+
+    s2_artif:
+        recipe:
+            &s2_artif
+            input: *s2_ard
+            transform: le_plugins.artific_urb_cat.s2_artif
+
+    artific_urb_cat:
+        recipe:
+            &artific_urb_cat
+            input:
+                collate:
+                    - *s1_asc_artiwoody
+                    - *s1_dsc_artiwoody
+                    - *s2_artif
+            transform: le_plugins.artific_urb_cat.artific_urb_cat
+    
+    # water ED
+    s1_asc_water:
+        recipe:
+            &s1_asc_water
+            input: *s1_ard_vh_asc
+            transform: le_plugins.water.s1_water
+    
+    s1_dsc_water:
+        recipe:
+            &s1_dsc_water
+            input: *s1_ard_vh_dsc
+            transform: le_plugins.water.s1_water
+
+    water:
+        recipe:
+            &water
+            input:
+                collate:
+                    - *s1_asc_water
+                    - *s1_dsc_water
+            transform: le_plugins.water.water
+
+    water_cat:
+        recipe:
+            &water_cat
+            input:
+                collate:
+                    - *water
+                    - *artific_urb_cat
+            transform: le_plugins.water_cat.water_cat
+    
+    # vegetation ED
+    s2_veg:
+        recipe:
+            &s2_veg
+            input: *s2_ard
+            transform: le_plugins.vegetation.s2_veg
+
+    vegetat_veg_cat:
+        recipe:
+            &vegetat_veg_cat
+            input:
+                collate:
+                    - *s2_veg
+                    - *water_cat
+                    - *artific_urb_cat
+            transform: le_plugins.vegetat_veg_cat.vegetat_veg_cat
+
+    # Lifeform ED
+    s1_woody:
+        recipe:
+            &s1_woody
+            input:
+                collate:
+                    - *s1_asc_artiwoody
+                    - *s1_dsc_artiwoody
+            transform: le_plugins.woody.s1_woody
+
+    woody_s1_cat:
+        recipe:
+            &woody_s1_cat
+            input:
+                collate:
+                    - *s1_woody
+                    - *vegetat_veg_cat
+            transform: le_plugins.woody.woody_s1_cat
+
+    woody_nfi:
+        recipe:
+            &woody_nfi
+            input: 
+                product: nfi_woodland_fr
+            transform: le_plugins.woody.woody_nfi
+
+    clear_cuts_s2:
+        recipe:
+            &clear_cuts_s2
+            input: *s2_ard
+            transform: le_plugins.woody.clear_cuts_s2
+            
+    woody_cat:
+        recipe:
+            &woody_cat
+            input:
+                collate:
+                    - *woody_s1_cat
+                    - *woody_nfi
+                    - *clear_cuts_s2
+            transform: le_plugins.woody.woody_cat
+    
+    # cultivated ED
+    sklearn_cultivated_classification:
+        recipe:
+            &sklearn_cultivated_classification
+            input: *s2_ard
+            model_pickle: *cultivated_model
+            transform: le_plugins.cultivated.sklearn_cultivated_classification
+    
+    cultman_agr_cat:
+        recipe:
+            &cultman_agr_cat
+            input:
+                collate:
+                    - *sklearn_cultivated_classification
+                    - *vegetat_veg_cat
+                    - *woody_cat
+            transform: le_plugins.cultman_agr_cat.cultman_agr_cat  
+
+    # aquatic vegetation
+    sklearn_species5_classification:
+        recipe:
+            &sklearn_species5_classification
+            input: *s2_ard
+            model_pickle: *species5_model
+            transform: le_plugins.species.sklearn_species5_classification
+
+    aquatic_peats:
+        recipe:
+            &aquatic_peats
+            input:
+                product: wg_peats_lle
+            transform: le_plugins.aquatic_veg_cat.aquatic_peats
+
+    aquatic_saltmarshes:
+        recipe:
+            &aquatic_saltmarshes
+            input:
+                product: nrw_saltmarshes_lle
+            transform: le_plugins.aquatic_veg_cat.aquatic_saltmarshes
+
+    aquatic_veg_cat:
+        recipe:
+            &aquatic_veg_cat
+            input: 
+                collate:
+                    - *sklearn_species5_classification
+                    - *aquatic_peats
+                    - *aquatic_saltmarshes
+                    - *vegetat_veg_cat
+                    - *woody_cat
+                    - *cultman_agr_cat
+            transform: le_plugins.aquatic_veg_cat.aquatic_veg_cat
+
+    #aquatic ED
+    aquatic_wat_cat:
+        recipe:
+            &aquatic_wat_cat
+            input: 
+                collate:
+                    - *water_cat
+                    - *aquatic_veg_cat
+            transform: le_plugins.aquatic_wat_cat.aquatic_wat_cat
+
+    #lifeform ED
+    lifeform_veg_cat:
+        recipe:
+            &lifeform_veg_cat
+            input: 
+                collate:
+                    - *woody_cat
+                    - *vegetat_veg_cat
+            transform: le_plugins.lifeform_veg_cat.lifeform_veg_cat
