@@ -1,0 +1,10 @@
+datacube
+matplotlib
+scipy
+scikit-learn
+ipyleaflet
+rioxarray
+geopandas
+ipywidgets
+rasterstats
+numexpr
