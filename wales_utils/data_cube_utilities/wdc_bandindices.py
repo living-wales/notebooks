@@ -1,4 +1,4 @@
-## dea_bandindices.py
+## wdc_bandindices.py
 '''
 Description: This file contains a set of python functions for computing
 remote sensing band indices on Digital Earth Australia data.
@@ -26,8 +26,9 @@ def calculate_indices(ds,
                       index=None,
                       platform=None,
                       custom_varname=None,
-                      normalise=True,
-                      drop=False):
+                      normalise=False,
+                      drop=False,
+                      quiet=False):
     """
     Takes an xarray dataset containing spectral bands, calculates one of
     a set of remote sensing indices, and adds the resulting array as a 
@@ -57,7 +58,7 @@ def calculate_indices(ds,
         'BSI' (Bare Soil Index, Rikimaru et al. 2002)
         'BUI' (Built-Up Index, He et al. 2010)
         'CIg' (Chlorophyll Index - green, Gitelson et al. 2005)
-        'CIre' (Chlorophyll Index - green, Gitelson et al. 2005)
+        'CIre' (Chlorophyll Index - red edge, Gitelson et al. 2005)
         'CMR' (Clay Minerals Ratio, Drury 1987)
         'EVI' (Enhanced Vegetation Index, Huete 2002)
         'FMR' (Ferrous Minerals Ratio, Segal 1982)
@@ -115,7 +116,7 @@ def calculate_indices(ds,
         surface reflectance values are not scaled between 0.0 and 1.0 
         prior to calculating the index. Setting `normalise=True` first 
         scales values to a 0.0-1.0 range by dividing by 10000.0. 
-        Defaults to True.
+        Defaults to False.
     drop : bool, optional
         Provides the option to drop the original input data, thus saving 
         space. if drop = True, returns only the index and its values.
@@ -344,12 +345,13 @@ def calculate_indices(ds,
                               "list of valid options for `index` (e.g. 'NDVI')")
 
         elif not normalise:
+            if not quiet:
 
-            print(f"\nA The index ('{index}') that normally "
-                    "applies to surface reflectance values in the \n"
-                    "0.0-1.0 range was applied to values in the 0-10000 "
-                    "range. This can produce unexpected results; \nif "
-                    "required, resolve this by setting `normalise=True`")
+                print(f"\nWarning: The index ('{index}') normally "
+                        "applies to surface reflectance values in the \n"
+                        "0.0-1.0 range. Applying the index to non-normalised "
+                        "reflectance can produce unexpected results; \nif "
+                        "required, resolve this by setting `normalise=True`")
 
         elif index_func is None:
 
