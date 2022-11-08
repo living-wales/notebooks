@@ -96,7 +96,7 @@ def flood_mapping(ds):
     
     Parameters
     ----------
-    ds : xarray.Dataset with dims ('date', 'latitude', 'longitude') and variables VH and VV
+    ds : xarray.Dataset with dims ('time', 'latitude', 'longitude') and variables VH and VV
     """    
     
     # detect areas under water 
@@ -110,21 +110,21 @@ def flood_progression(flood_series):
     
     Parameters
     ----------
-    flood_series : xarray.DataArray of binary flood maps with dims ('date', 'latitude', 'longitude')
+    flood_series : xarray.DataArray of binary flood maps with dims ('time', 'latitude', 'longitude')
     """
     import xarray as xr
     
-    strDate = flood_series.date[1].values
-    water_changes = flood_series.isel(date=1).fillna(0)*2 - flood_series.isel(date=0).fillna(0)
-    water_changes = water_changes.assign_coords(date=strDate).expand_dims('date')
+    strDate = flood_series.time[1].values
+    water_changes = flood_series.isel(time=1).fillna(0)*2 - flood_series.isel(time=0).fillna(0)
+    water_changes = water_changes.assign_coords(time=strDate).expand_dims('time')
 
-    for time in range(2,flood_series.date.size):
-        strDate = flood_series.date[time].values
+    for time in range(2,flood_series.time.size):
+        strDate = flood_series.time[time].values
         previous_time = time-1
 
-        diff_maps = flood_series.isel(date=time).fillna(0)*2 - flood_series.isel(date=previous_time).fillna(0)
-        diff_maps = diff_maps.assign_coords(date=strDate).expand_dims('date')
-        water_changes = xr.concat([water_changes, diff_maps], 'date')
+        diff_maps = flood_series.isel(time=time).fillna(0)*2 - flood_series.isel(time=previous_time).fillna(0)
+        diff_maps = diff_maps.assign_coords(time=strDate).expand_dims('time')
+        water_changes = xr.concat([water_changes, diff_maps], 'time')
     
     return water_changes.where(water_changes!=0)
 
@@ -135,14 +135,14 @@ def flood_frequency(flood_series, start_date, end_date):
     
     Parameters
     ----------
-    flood_series : xarray.DataArray of binary flood maps with dims ('date', 'latitude', 'longitude')
+    flood_series : xarray.DataArray of binary flood maps with dims ('time', 'latitude', 'longitude')
     start_date : str with format 'YYYY-MM-DD'
     end_date : str with format 'YYYY-MM-DD'
     """
 
-    flooded_feb = flood_series.sel(date=slice(start_date, end_date))
-    wet_feb = flooded_feb.count(dim='date').where(flooded_feb.count(dim='date')>0)
-    nb_images_feb = flooded_feb.date.size
+    flooded_feb = flood_series.sel(time=slice(start_date, end_date))
+    wet_feb = flooded_feb.count(dim='time').where(flooded_feb.count(dim='time')>0)
+    nb_images_feb = flooded_feb.time.size
 
     frequency = (wet_feb / nb_images_feb).rename("frequency")
     
