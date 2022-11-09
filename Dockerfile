@@ -18,16 +18,19 @@ RUN pip install -r /code/requirements.txt
 RUN pip3 install git+https://bitbucket.org/au-eoed/livingearth_lccs.git
 
 # Link notebooks to /notebooks
-RUN mkdir -p /notebooks && ln -s /code/Beginners_guide /notebooks/ && ln -s /code/Case_Studies /notebooks/ && ln -s /code/img /notebooks/
+RUN mkdir -p /notebooks && \
+    ln -s /code/Beginners_guide /notebooks/ && \
+    ln -s /code/Case_Studies /notebooks/ && \
+    ln -s /code/img /notebooks/ && \
+    ln -s /code/Vectors /notebooks && \
+    ln -s /code/wales_utils /notebooks
 
 # Switch back to jovyan 
 USER ${NB_UID}
 COPY .datacube.conf /home/jovyan
 
-ENV PYTHONPATH /code/LW-notebooks:$PYTHONPATH
-
 CMD ["jupyter", "lab", \
-"--ip=0.0.0.0", \
-"--port=9988", \
-"--no-browser"]
+     "--ip=0.0.0.0", \
+     "--port=9988", \
+     "--no-browser"]
 
