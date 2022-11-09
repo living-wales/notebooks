@@ -1,5 +1,5 @@
 from ipywidgets import RadioButtons
-from wales_utils.data_cube_utilities.habitat import habitat_dict
+from habitat import habitat_dict
 '''
 Description: This file contains a set of python functions for computing
 remote sensing burnt area mapping with WDC data.
@@ -8,7 +8,7 @@ remote sensing burnt area mapping with WDC data.
 # Define custom functions
 def burnt_site_list():
     site_widget = RadioButtons(
-        options=["Bwlch Corog","Mynydd Mawr","Foel Feddau","Glanaman", "Mynydd Llanllwni"],
+        options=["Glanaman","Bwlch Corog","Mynydd Mawr","Foel Feddau", "Mynydd Llanllwni"],
         layout={'width': 'max-content'}, # If the items' names are long
         description='',
         disabled=False
@@ -95,7 +95,7 @@ def burn_mapping(ds, normalise=False):
     """    
     
     # calculating NBR
-    from wales_utils.data_cube_utilities.wdc_bandindices import calculate_indices
+    from wdc_bandindices import calculate_indices
     dataset_index = calculate_indices(ds, index='NBR', platform= 'SENTINEL_2',normalise=normalise)
     
     # detect areas under water 
