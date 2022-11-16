@@ -3,7 +3,6 @@ FROM jupyter/minimal-notebook
 # Run apt update (need to do this as root)
 USER root
 RUN apt-get update && apt-get install gcc g++ libgdal-dev vim wget htop rsync -y
-RUN apt-get update && apt-get install iproute2 iputils-ping and netcat-openbsd -y
 
 # Copy code into the container
 COPY . /code
@@ -28,6 +27,10 @@ RUN mkdir -p /notebooks && \
 # Switch back to jovyan 
 USER ${NB_UID}
 COPY .datacube.conf /home/jovyan
+
+# Set Python path to find plugins and other utilities for WDC
+ENV PYTHONPATH=/code:/code/LW-notebooks:$PYTHONPATH
+
 
 CMD ["jupyter", "lab", \
      "--ip=0.0.0.0", \
