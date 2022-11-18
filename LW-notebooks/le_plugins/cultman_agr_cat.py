@@ -21,3 +21,17 @@ class cultman_agr_cat(Transformation):
     
     def measurements(self, input_measurements):
         return {'cultman_agr_cat': Measurement(name='cultman_agr_cat', dtype='float32', nodata=float('nan'), units='1')}
+
+
+class le_cultman_agr_cat(Transformation):
+    """
+    Renaming cultman_agr_cat dataset's measurement name
+    """
+    def compute(self, data):
+        print("USING cultman_agr_cat in LivingEarth...")
+        cultman_agr_cat_dataset = data.rename(name_dict={"band":"cultman_agr_cat"})
+        cultman_agr_cat_dataset = cultman_agr_cat_dataset.fillna(0)
+        return (cultman_agr_cat_dataset)
+    
+    def measurements(self, input_measurements):
+        return {'cultman_agr_cat': Measurement(name='cultman_agr_cat', dtype='float32', nodata=float('nan'), units='1')}

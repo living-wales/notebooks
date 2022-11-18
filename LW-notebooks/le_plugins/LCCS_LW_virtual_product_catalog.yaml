@@ -1,8 +1,8 @@
 products:
 
     # models 
-    cultivated_model: &cultivated_model "models/cultivated_seminat_3yearscomposite.sav"
-    species5_model: &species5_model "models/species5_3yearscomposite.sav"
+    cultivated_model: &cultivated_model "/home/a.cap33/dccore_ard/notebooks/LW-notebooks/models/cultivated_seminat_3yearscomposite.sav"
+    species5_model: &species5_model "/home/a.cap33/dccore_ard/notebooks/LW-notebooks/models/species5_3yearscomposite.sav"
 
     # ard sentinel-1 & -2
     s2_ard:
@@ -58,6 +58,11 @@ products:
                     - *s1_dsc_artiwoody
                     - *s2_artif
             transform: le_plugins.artific_urb_cat.artific_urb_cat
+            
+    le_artific_urb_cat:
+        recipe:
+            input: *artific_urb_cat
+            transform: le_plugins.artific_urb_cat.le_artific_urb_cat
     
     # water ED
     s1_asc_water:
@@ -106,6 +111,11 @@ products:
                     - *water_cat
                     - *artific_urb_cat
             transform: le_plugins.vegetat_veg_cat.vegetat_veg_cat
+    
+    le_vegetat_veg_cat:
+        recipe:
+            input: *vegetat_veg_cat
+            transform: le_plugins.vegetat_veg_cat.le_vegetat_veg_cat
 
     # Lifeform ED
     s1_woody:
@@ -167,6 +177,11 @@ products:
                     - *woody_cat
             transform: le_plugins.cultman_agr_cat.cultman_agr_cat  
 
+    le_cultman_agr_cat:
+        recipe:
+            input: *cultman_agr_cat
+            transform: le_plugins.cultman_agr_cat.le_cultman_agr_cat 
+    
     # aquatic vegetation
     sklearn_species5_classification:
         recipe:
@@ -211,6 +226,11 @@ products:
                     - *water_cat
                     - *aquatic_veg_cat
             transform: le_plugins.aquatic_wat_cat.aquatic_wat_cat
+    
+    le_aquatic_wat_cat:
+        recipe:
+            input: *aquatic_wat_cat
+            transform: le_plugins.aquatic_wat_cat.le_aquatic_wat_cat
 
     #lifeform ED
     lifeform_veg_cat:

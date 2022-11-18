@@ -150,21 +150,22 @@ def s2_species5_img_prepare(data):
     """
     Calculate index/band statistics from Sentinel-2 ARD
     """
-    from pyproj import Proj, transform
+#     from pyproj import Proj, transform
 
     year = str(data.time[0].dt.year.values)
     #print(year)
-    training_inProj = Proj(init='epsg:27700')
-    training_outProj = Proj(init='epsg:4326')
-    min_x,min_y = transform(training_inProj,training_outProj,data.x.min().values,data.y.min().values)
-    max_x,max_y = transform(training_inProj,training_outProj,data.x.max().values,data.y.max().values)
+#     training_inProj = Proj(init='epsg:27700')
+#     training_outProj = Proj(init='epsg:4326')
+#     min_x,min_y = transform(training_inProj,training_outProj,data.x.min().values,data.y.min().values)
+#     max_x,max_y = transform(training_inProj,training_outProj,data.x.max().values,data.y.max().values)
     #print(min_x,min_y,max_x,max_y)
     platform = 'SENTINEL_2'
     product = 'sen2_l2a_gcp'
     query = {'platform': platform,
          'product': product,
-         'x': (min_x, max_x),
-         'y': (min_y, max_y),
+         'x': (data.x.min(), data.x.max()),
+         'y': (data.y.min(), data.y.max()),
+         'crs': 'epsg:27700', 
          'output_crs': 'epsg:27700', 
          'resolution': (-10,10)}
     #print(query)

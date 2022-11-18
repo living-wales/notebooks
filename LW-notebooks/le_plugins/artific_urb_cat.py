@@ -72,21 +72,28 @@ class artific_urb_cat(Transformation):
     """
     def compute(self, data):
         print("running VP: artific_urb_cat")
-        from pyproj import Proj, transform
+        from pyproj import Proj, transform, CRS
         
         data_combined = data.sum(dim="time")
         artif_sentinel = data_combined.where(data_combined == 3)*0+1
         
-        training_inProj = Proj(init='epsg:27700')
-        training_outProj = Proj(init='epsg:4326')
-        min_x,min_y = transform(training_inProj,training_outProj,data.x.min().values,data.y.min().values)
-        max_x,max_y = transform(training_inProj,training_outProj,data.x.max().values,data.y.max().values)
-        print(min_x,min_y,max_x,max_y)
+        #print("1")
+# #         training_inProj = Proj(init='epsg:27700')
+#         training_inProj = CRS('EPSG:27700')
+#         print("2")
+#         training_outProj = CRS('EPSG:4326')
+#         training_outProj = Proj(init='epsg:4326')
+#         print("3")
+#         min_x,min_y = transform(training_inProj,training_outProj,data.x.min().values,data.y.min().values)
+#         print("4")
+#         max_x,max_y = transform(training_inProj,training_outProj,data.x.max().values,data.y.max().values)
+        #print(min_x,min_y,max_x,max_y)
 
         product = 'osm_free_geofabrik'
         query = {'product': product,
-                 'x': (min_x, max_x),
-                 'y': (min_y, max_y),
+                 'x': (data.x.min(), data.x.max()),
+                 'y': (data.y.min(), data.y.max()),
+                 'crs': 'epsg:27700',
                  'time': ('2019-03-25', '2019-03-26'),
                  'output_crs': 'epsg:27700', 
                  'resolution': (-10,10)}
@@ -97,6 +104,20 @@ class artific_urb_cat(Transformation):
         artif = art_all.where(art_all > 0)*0+1
         print("done")
         return (artif)
+    
+    def measurements(self, input_measurements):
+        return {'artific_urb_cat': Measurement(name='artific_urb_cat', dtype='float32', nodata=float('nan'), units='1')}
+
+    
+class le_artific_urb_cat(Transformation):
+    """
+    Combining artificial products into an artificial surface layer
+    """
+    def compute(self, data):
+        print("USING artific_urb_cat in LivingEarth...")
+        artific_urb_cat_dataset = data.rename(name_dict={"band":"artific_urb_cat"})
+        artific_urb_cat_dataset = artific_urb_cat_dataset.fillna(0)
+        return (artific_urb_cat_dataset)
     
     def measurements(self, input_measurements):
         return {'artific_urb_cat': Measurement(name='artific_urb_cat', dtype='float32', nodata=float('nan'), units='1')}
