@@ -31,11 +31,37 @@ def cleaning_s2(ds):
     ----------
     ds : xarray.Dataset with scl (i.e., cloud mask) variable.
     """    
+    print("Cleaning Sentinel-2 images...")
     ds_clean = ds.where((ds.scl == 4) | (ds.scl == 5) | 
                         (ds.scl == 6) | (ds.scl == 7) | 
                         (ds.scl == 11))
+    ds_clean = ds_clean.where(ds_clean != 0)
     ds_clean = ds_clean.drop('scl')
-    return (ds_clean/10000)
+    
+    # Add negative BOA offset for Sentinel-2 L2A images produced from the 04.00 baseline (i.e., since 25 January 2022)
+    # L2A_BOAi = (L2A_DNi + BOA_ADD_OFFSETi) / QUANTIFICATION_VALUEi
+    
+    print("(Applying new Copernicus offset after 24 Jan 2022.)")
+    ds_clean_withOFFSET = ds_clean.where(ds_clean.time.dt.year > 2022) - 1000
+    
+    ds_clean_withOFFSET_2022 = ds_clean.where((ds_clean.time.dt.month > 1) & (
+                                               ds_clean.time.dt.year == 2022)) - 1000
+    
+    ds_clean_withOFFSET_Jan2022 = ds_clean.where((ds_clean.time.dt.day >= 25) & (
+                                                  ds_clean.time.dt.month == 1) & (
+                                                  ds_clean.time.dt.year == 2022)) - 1000
+    
+    ds_clean_withoutOFFSET_Jan2022 = ds_clean.where((ds_clean.time.dt.day < 25) & (
+                                                     ds_clean.time.dt.month == 1) & (
+                                                     ds_clean.time.dt.year == 2022))
+    
+    ds_clean_withoutOFFSET = ds_clean.where(ds_clean.time.dt.year < 2022)
+    
+    ds_clean_addedOFFSET = ds_clean_withoutOFFSET.fillna(0) + ds_clean_withoutOFFSET_Jan2022.fillna(0
+                         ) + ds_clean_withOFFSET_Jan2022.fillna(0) + ds_clean_withOFFSET_2022.fillna(0
+                         ) + ds_clean_withOFFSET.fillna(0)
+    
+    return (ds_clean_addedOFFSET/10000)
 
 def cloud_coverage(ds):
     """
