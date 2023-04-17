@@ -149,7 +149,7 @@ def clearfells_monitoring(woody):
     changes = woody.sel(year=to_year).fillna(0) - woody.sel(year=from_year).fillna(0)
     clear_cuts = (changes.where(changes<0)*0+1).fillna(0)
     clear_cuts_clean = ndimage.morphology.binary_opening(
-        clear_cuts.values, structure=np.ones((3,3))).astype(np.int)
+        clear_cuts.values, structure=np.ones((3,3))).astype(np.uint8)
     clear_cuts_clean = xr.DataArray(np.flipud(clear_cuts_clean), dims=('latitude','longitude'))
     clear_cuts_clean = clear_cuts_clean.assign_coords(year=str(to_year)).expand_dims('year')
 
@@ -160,7 +160,7 @@ def clearfells_monitoring(woody):
         changes_year = woody.sel(year=to_year).fillna(0) - woody.sel(year=from_year).fillna(0)
         clear_cuts_year = (changes_year.where(changes_year<0)*0+1).fillna(0)
         clear_cuts_year_clean = ndimage.morphology.binary_opening(
-            clear_cuts_year.values, structure=np.ones((3,3))).astype(np.int)
+            clear_cuts_year.values, structure=np.ones((3,3))).astype(np.uint8)
         clear_cuts_year_clean = xr.DataArray(np.flipud(clear_cuts_year_clean), dims=('latitude','longitude'))
         clear_cuts_year_clean = clear_cuts_year_clean.assign_coords(year=str(to_year)).expand_dims('year')
         clear_cuts_clean = xr.concat([clear_cuts_clean, clear_cuts_year_clean], 'year')
