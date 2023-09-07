@@ -1,0 +1,22 @@
+image: python:3.11-alpine
+
+stages:
+  - test
+  - build
+
+
+test:
+  stage: test
+  script: 
+    - echo "No tests performed; returning true to enable merge requests"
+    - echo true
+  only:
+    - merge_requests
+
+docker-build-production:
+  stage: build
+  script: 
+    - echo $WEBHOOK_KEY
+    - python call_webhook.py
+  only:
+    - main
