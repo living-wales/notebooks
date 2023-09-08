@@ -1,0 +1,27 @@
+name: Copy Notebooks to blob store shared container
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+   
+    - name: Upload to blob storage
+      uses: azure/CLI@v1
+      with:
+        inlineScript: |
+          az storage blob delete-batch --account-name livingwalesstorage --auth-mode key -s 'notebooks' 
+          az storage blob upload-batch --account-name livingwalesstorage --auth-mode key -d 'notebooks' -s / 
+
+    - name: logout
+      run: |
+        az logout
+      if: always()
