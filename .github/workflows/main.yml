@@ -19,7 +19,7 @@ jobs:
       with:
         inlineScript: |
           az storage blob delete-batch --account-name livingwalesstorage --auth-mode key -s 'notebooks' 
-          az storage blob upload-batch --account-name livingwalesstorage --auth-mode key -d 'notebooks' -s / 
+          az storage blob upload-batch --account-name livingwalesstorage --auth-mode key -d 'notebooks' -s ./ 
 
     - name: logout
       run: |
