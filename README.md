@@ -11,7 +11,7 @@ The process of copying the contents to the shared container is handled by GitHub
 ## Set-up Instructions
 
 All the secret values used in the Action definition need to be added; this is done in 
-https://github.com/living-wales/notebooks/settings/secrets/actions. Once the secrets are defined with appropriate values, the 
+[settings/secrets/actions](../../settings/secrets/actions). Once the secrets are defined with appropriate values, the 
 synchronisation of the `notebooks` folder with the storage account container will happen automagically. 
 
 Add the following Repository Secrets:
