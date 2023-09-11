@@ -18,8 +18,8 @@ jobs:
       uses: azure/CLI@v1
       with:
         inlineScript: |
-          az storage blob delete-batch --account-name livingwalesstorage --auth-mode key -s 'notebooks' 
-          az storage blob upload-batch --account-name livingwalesstorage --auth-mode key -d 'notebooks' -s ./ 
+          az storage blob delete-batch --account-name livingwalesstorage --auth-mode login -s 'notebooks' 
+          az storage blob upload-batch --account-name livingwalesstorage --auth-mode login -d 'notebooks' -s ./ 
 
     - name: logout
       run: |
