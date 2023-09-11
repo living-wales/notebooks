@@ -20,8 +20,11 @@ jobs:
         AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
       with:
         inlineScript: |
+          myip=$(curl -s ipv4.icanhazip.com | tr -d '\n')
+          az storage account network-rule add --resource-group AZURE_RESOURCE_GROUP --account-name AZURE_STORAGE_ACCOUNT --ip-address $myip
           az storage blob delete-batch --account-name livingwalesstorage --auth-mode login -s 'notebooks' 
           az storage blob upload-batch --account-name livingwalesstorage --auth-mode login -d 'notebooks' -s ./ 
+          az storage account network-rule remove --resource-group AZURE_RESOURCE_GROUP --account-name AZURE_STORAGE_ACCOUNT --ip-address $myip
 
     - name: logout
       run: |
