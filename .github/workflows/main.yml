@@ -23,8 +23,8 @@ jobs:
           myip=$(curl -s ipv4.icanhazip.com | tr -d '\n')
           az storage account network-rule add --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} --ip-address $myip
           sleep 30 # to allow time for rule to apply
-          az storage blob delete-batch --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} --auth-mode key -s ${{ secrets.AZURE_CONTAINER_NAME }} --pattern 'notebooks/*'
-          az storage blob upload-batch --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} --auth-mode key -d ${{ secrets.AZURE_CONTAINER_NAME }} -s ./ --pattern 'notebooks/*'
+          az storage blob delete-batch --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} --auth-mode login -s ${{ secrets.AZURE_CONTAINER_NAME }} --pattern 'notebooks-login/*'
+          az storage blob upload-batch --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} --auth-mode login -d ${{ secrets.AZURE_CONTAINER_NAME }} -s ./ --pattern 'notebooks-login/*'
           az storage account network-rule remove --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} --ip-address $myip
 
     - name: logout
