@@ -104,7 +104,7 @@ def burn_mapping(ds, normalise=False):
 
 def burn_progression(burnt_series):
     """
-    Takes series of binary flood maps and returns a map of flood progression.  
+    Takes series of binary burn maps and returns a map of burn progression.  
     Last modified: June 2022
     
     Parameters
@@ -143,6 +143,10 @@ def report_max_burn_extent(burnt_area_ha):
 
 
 def report_burnt_habitats(burn, habitat_map):
+    """
+    Takes a binary burn map and habitat map and returns a report about burnt habitats (ha and year).  
+    Last modified: Sept 2023
+    """
     import numpy as np
     
     report_burnt_habitats= {}
@@ -150,13 +154,13 @@ def report_burnt_habitats(burn, habitat_map):
         report_burnt_habitats[str(year)]={}
 
         burnt_areas = (burn.where(burn.time.dt.year==year, drop=True).sum(dim='time') > 0)
-        burnt_habitats = habitat_map.habitats.where(burnt_areas==True)
+        burnt_habitats = habitat_map.detailed.where(burnt_areas==True)
         burnt_habitats_summary = burnt_habitats.groupby(burnt_habitats).count()
 
         for habitat_burnt in burnt_habitats_summary:
-            if (((int(habitat_burnt.habitats.values) < 134) | (int(habitat_burnt.habitats.values)==159)
-               )) & (int(habitat_burnt.habitats.values)!=90):
-                report_burnt_habitats[str(year)][habitat_dict[int(habitat_burnt.habitats.values)
+            if (((int(habitat_burnt.detailed.values) < 134) | (int(habitat_burnt.detailed.values)==159) | 
+                 (int(habitat_burnt.detailed.values)==202))) & (int(habitat_burnt.detailed.values)!=90):
+                report_burnt_habitats[str(year)][habitat_dict[int(habitat_burnt.detailed.values)
                                                              ]]=habitat_burnt.values*100/10000
 
     for habitat_name in list(set(val for dic in report_burnt_habitats for val in list(report_burnt_habitats[dic].keys()))):
