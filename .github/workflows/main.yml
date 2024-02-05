@@ -20,6 +20,7 @@ jobs:
         AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
       with:
         inlineScript: |
+          apk add curl
           myip=$(curl -s ipv4.icanhazip.com | tr -d '\n')
           az storage account network-rule add --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} --ip-address $myip
           sleep 30 # to allow time for rule to apply
