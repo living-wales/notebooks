@@ -61,7 +61,11 @@ def cleaning_s2(ds):
                          ) + ds_clean_withOFFSET_Jan2022.fillna(0) + ds_clean_withOFFSET_2022.fillna(0
                          ) + ds_clean_withOFFSET.fillna(0)
     
-    return (ds_clean_addedOFFSET/10000)
+    ds_clean_scaled = ds_clean_addedOFFSET/1000
+    # Set nodata values of 0 to NaN
+    ds_clean_scaled = ds_clean_scaled.where(ds_clean_scaled != 0)
+    
+    return ds_clean_scaled
 
 def cloud_coverage(ds):
     """
